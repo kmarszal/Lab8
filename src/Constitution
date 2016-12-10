@@ -1,1 +1,133 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+public class Constitution {
+	public List<String> preamble;
+	public List<Chapter> chapters;
+
+	public Constitution(String path) {
+		preamble = new LinkedList<>();
+		chapters = new LinkedList<>();
+		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+			String line = br.readLine();
+			int ChaptNumber = 0;
+			while (line!=null && !(TextParser.test(line).equals(Types.Chapter)))
+			{
+				if(!TextParser.test(line).equals(Types.ToDelete))
+				{
+					while(TextParser.endsWithDash(line))
+					{
+						String prevline = line;
+						line = br.readLine();
+						while(TextParser.test(line).equals(Types.ToDelete)) line = br.readLine();
+						String[] strings = TextParser.concatenate(prevline, line);
+						preamble.add(strings[0]);
+						line = strings[1];
+					}
+					preamble.add(line);
+				}
+				line = br.readLine();
+			}
+			List<Article> articlesprev = new LinkedList<>();
+			String Titleprev = new String();
+			while (line!=null) {
+				Types type = TextParser.test(line);
+				switch (type) {
+				
+				case Chapter:
+					if(ChaptNumber!=0)	this.chapters.add(new Chapter(ChaptNumber,Titleprev,articlesprev));
+					List<Article> articles = new LinkedList<>();
+					articlesprev = articles;
+					line = br.readLine();
+					String Title = line;
+					Titleprev = Title;
+					++ChaptNumber;
+					line = br.readLine();
+					break;
+				
+				case Article:
+					
+					List<String> ArticleText = new LinkedList<>();
+					int Artnumber;
+					if (line.endsWith(".")) Artnumber = Integer.parseInt(line.substring(line.lastIndexOf(' ') + 1, line.length()-1));
+					else Artnumber = Integer.parseInt(line.substring(line.lastIndexOf(' ') + 1, line.length()));
+					line = br.readLine();
+					while (TextParser.test(line).equals(Types.ToDelete)) line = br.readLine();
+					while (line != null && (TextParser.test(line).equals(Types.Text) || TextParser.test(line).equals(Types.ToDelete)))
+					{
+						if(!TextParser.test(line).equals(Types.ToDelete))
+						{
+							while(TextParser.endsWithDash(line))
+							{
+								String prevline = line;
+								line = br.readLine();
+								while(TextParser.test(line).equals(Types.ToDelete)) line = br.readLine();
+								String[] strings = TextParser.concatenate(prevline, line);
+								ArticleText.add(strings[0]);
+								line = strings[1];
+							}
+							ArticleText.add(line);
+						}
+						line = br.readLine();
+					}
+					Article a = new Article(Artnumber,ArticleText);
+					articlesprev.add(a);
+					break;
+					
+				case Subchapter:
+				case Text:
+					line = br.readLine();
+					break;
+				default:
+					break;
+				}
+			}
+			this.chapters.add(new Chapter(ChaptNumber,Titleprev,articlesprev));
+		}catch (IOException ex) {
+			System.out.println(ex);
+		}
+	}
+	
+	public void print()
+	{
+		for (String s : preamble)
+		{
+			System.out.println(s);
+		}
+		for (Chapter c : chapters)
+		{
+			c.printChapter();
+		}
+	}
+	
+	public void printChapter(int number)
+	{
+		chapters.get(number-1).printChapter();
+	}
+
+	public void printArticles(int first, int last)
+	{
+		Iterator<Chapter> it = chapters.iterator();
+		Chapter x = it.next();
+		while(x.getLastArticle()<first)
+		{
+			x = it.next();
+		}
+		if(x.getLastArticle()<last)
+		{
+			x.printArticles(first, x.getLastArticle());
+			x = it.next();
+		}
+		while(x.getLastArticle()<last)
+		{
+			x.printArticles(x.getFirstArticle(), x.getLastArticle());
+			x = it.next();
+		}
+		x.printArticles(x.getFirstArticle(), last);
+	}
+}
 
