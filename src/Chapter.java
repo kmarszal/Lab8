@@ -1,5 +1,8 @@
+
 import java.util.HashMap;
 import java.util.List;
+
+
 
 public class Chapter {
 	private int number;
@@ -7,6 +10,7 @@ public class Chapter {
 	private int lastArticle;
 	private String title;
 	private HashMap<Integer,Article> articles;
+	private HashMap<Integer,String> subchapters;
 	
 	public int getNumber() {
 		return number;
@@ -20,12 +24,13 @@ public class Chapter {
 		return lastArticle;
 	}
 
-	public Chapter(int number,String title, List<Article> articles) {
+	public Chapter(int number,String title, List<Article> articles, HashMap<Integer,String> subchapters) {
 		this.number = number;
 		this.title = title;
 		this.firstArticle = articles.get(0).getNumber();
 		this.lastArticle = articles.get(articles.size()-1).getNumber();
 		this.articles = new HashMap<>();
+		this.subchapters = subchapters;
 		for(Article a : articles)
 		{
 			this.articles.put(a.getNumber(), a);
@@ -36,9 +41,20 @@ public class Chapter {
 	{
 		System.out.println("ROZDZIAL " + number);
 		System.out.println(title);
-		for(Article a : articles.values())
+		if(subchapters.isEmpty())
 		{
-			a.printArticle();
+			for(Article a : articles.values())
+			{
+				a.printArticle();
+			}
+		}
+		else
+		{
+			for(Article a : articles.values())
+			{
+				if(subchapters.containsKey(a.getNumber())) System.out.println(subchapters.get(a.getNumber()));
+				a.printArticle();
+			}
 		}
 	}
 	
