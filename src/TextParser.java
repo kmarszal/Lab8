@@ -27,7 +27,7 @@ public class TextParser {
 		Pattern Data = Pattern.compile("[\\d]{0,4}-[0-1][\\d]-[0-3][\\d]");
 		Pattern Article = Pattern.compile("Art\\..*");
 		Pattern Chapter = Pattern.compile("Rozdział\\s[MDCLXVI]+");
-		Pattern Subchapter = Pattern.compile("[A-Z[ĄŻŹĘĆŃŁÓ][\\s]]+");
+		Pattern Subchapter = Pattern.compile("[A-Z[ĄŻŹĘĆŚŃŁÓ][\\s]]+");
 		Pattern Kancelaria = Pattern.compile("﻿[©].*");
 		Pattern Char = Pattern.compile(".");
 		Matcher mData = Data.matcher(tested);
@@ -51,4 +51,3 @@ public class TextParser {
 	}
 
 }
-
